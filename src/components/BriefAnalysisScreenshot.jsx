@@ -133,7 +133,7 @@ export default function BriefAnalysisScreenshot({ isAnalyzing, onStartAnalysis, 
                             <i className="bi bi-layout-text-window-reverse me-2"></i>
                             Mailer Outline Wireframe
                         </h4>
-                        <p className="small text-primary bg-primary-subtle d-inline-block px-2 py-1 rounded">Wireframe will populate here after you upload a brief.</p>
+                        <p className="small text-primary">Wireframe will populate here after you upload a brief.</p>
 
                         <div className="mt-2 flex-grow-1 overflow-auto pe-1">
                             <div className="accordion">
@@ -151,7 +151,7 @@ export default function BriefAnalysisScreenshot({ isAnalyzing, onStartAnalysis, 
                                             </h2>
                                             {isExpanded ? (
                                                 <div className="accordion-collapse show">
-                                                    <div className="accordion-body p-0">
+                                                    <div className="accordion-body bg-body-tertiary p-0">
                                                         {section.body || <div className="small text-secondary p-3">Content generated from uploaded brief.</div>}
                                                     </div>
                                                 </div>

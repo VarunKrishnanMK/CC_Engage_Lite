@@ -25,7 +25,7 @@ export default function Header() {
                         <ul className="navbar-nav">
                             <li className="nav-item me-3">
                                 <form role="search">
-                                    <input className="form-control" type="search" placeholder="Search " aria-label="Search" />
+                                    <input className="form-control text-danger" type="search" placeholder="Search " aria-label="Search" />
                                 </form>
                             </li>
                             <li className="nav-item me-3">
@@ -33,7 +33,7 @@ export default function Header() {
                             </li>
                             <li className="nav-item">
                                 <div className="dropdown">
-                                    <button className="btn btn-light dropdown rounded-circle fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button className="btn button-primary-outline dropdown rounded-circle fw-bold text-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         {userDetails.shortName}
                                     </button>
                                     <ul className="dropdown-menu dropdown-menu-end w-50">

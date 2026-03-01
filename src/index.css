@@ -4,9 +4,10 @@
         #f6f4fb;
     --foreground: black;
     --formatted-text-bg: #e9e9e9;
-    --primary-button-bg: #002B5E;
-    --primary-button-outline-bg: #C9200D;
-    --primary-button-outline-hover-bg: #494949;
+    --primary-bg: #C8200E;
+    --primary-second-bg: #4A4948;
+    --primary-outline-bg: #C8200E;
+    --primary-outline-hover-bg: #4A4948;
 }
 
 [data-theme='dark'] {
@@ -15,9 +16,10 @@
         #0c0c0c;
     --foreground: white;
     --formatted-text-bg: #333333;
-    --primary-button-bg: #002B5E;
-    --primary-button-outline-bg: #C9200D;
-    --primary-button-outline-hover-bg: #494949;
+    --primary-bg: #C8200E;
+    --primary-second-bg: #4A4948;
+    --primary-outline-bg: #C8200E;
+    --primary-outline-hover-bg: #4A4948;
 }
 
 html,
@@ -73,9 +75,21 @@ input[type=number] {
     appearance: textfield;
 }
 
+.form-control:focus {
+    box-shadow: none;
+}
+
+.loginBannerBg {
+    background: linear-gradient(180.47deg, var(--primary-bg) 0.8%, var(--primary-second-bg) 178.09%);
+}
+
 .loginBg {
     height: 100vh;
     width: 100vw;
+}
+
+.loginContainer {
+    height: 96vh;
 }
 
 .loginCard {
@@ -101,36 +115,44 @@ input[type=number] {
     }
 }
 
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, var(--primary-second-bg) 0%, var(--primary-bg) 100%);
+    color: white;
+}
+
 .googleIcon {
     width: 7%;
 }
 
 .button-primary {
-    background-color: var(--primary-button-bg);
+    background-color: var(--primary-bg);
     color: white;
     padding: 5px;
     border-radius: 10px;
+    border: none;
 }
 
 .button-primary-outline {
     border-style: solid;
     border-width: thin 1px;
-    border-color: var(--primary-button-outline-bg);
-    color: var(--primary-button-outline-bg);
+    border-color: var(--primary-outline-bg);
+    color: var(--primary-outline-bg);
     background-color: white;
 }
 
 .button-primary-outline:hover {
     border-style: solid;
     border-width: thin 1px;
-    border-color: var(--primary-button-outline-hover-bg);
-    color: var(--primary-button-outline-bg);
-    background-color: var(--primary-button-outline-hover-bg);
+    border-color: var(--primary-outline-hover-bg);
+    color: var(--formatted-text-bg);
+    background-color: var(--foreground);
 }
 
-
 .headerBg {
-    background: linear-gradient(90deg, #494949 0%, #C9200D 100%);
+    background: linear-gradient(90deg, var(--primary-second-bg) 0%, var(--primary-bg) 100%);
 }
 
 .navbar-toggler {
@@ -202,6 +224,45 @@ input[type=number] {
 }
 
 .requirement-form-body {
-    height: 79vh;
+    height: 80vh;
     overflow-y: auto;
+}
+
+.ai-chat-assistance {
+    height: 53vh;
+}
+
+.nav-pills .nav-link {
+    color: black;
+    font-size: smaller;
+    padding: 5px;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show>.nav-link {
+    color: black;
+    font-weight: bold;
+    background-color: rgb(232, 232, 232);
+    font-size: smaller;
+}
+
+.success-card {
+    height: 95vh;
+    overflow-y: auto;
+}
+
+.card-padding {
+    padding: 40px
+}
+
+@media (max-width: 540px) {
+    .success-card {
+        height: fit-content;
+        width: 100%;
+    }
+
+    .card-padding {
+        height: auto;
+        padding: 10px
+    }
 }

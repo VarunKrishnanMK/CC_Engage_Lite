@@ -1,6 +1,7 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { useTheme } from "../../contexts/ThemeContext"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "../../contexts/ThemeContext";
+import AIChatSection from "../../components/AIChatSection";
 
 const fieldConfig = [
     {
@@ -325,40 +326,26 @@ export default function NewCreative() {
     return (
         <div>
             <div className={`p-2 ${theme === 'light' ? "headerBg" : "bg-dark"}`}>
-                <h4 className="fw-bold text-light">Creative Requirements</h4>
+                <h4 className="fw-bold text-light">Create New Creative</h4>
             </div>
             <div className="container-fluid my-2">
                 <div className="row g-2">
                     <div className="col-12 col-lg-8 order-2 order-lg-1 d-flex">
-                        <div className="card border shadow-sm flex-fill">
-                            <div className="card-header bg-primary-subtle border-bottom">
-                                <h1 className="h5 mb-1 fw-semibold">Creative Requirements Form</h1>
-                                <p className="mb-0 small text-secondary">Fill in your campaign details below</p>
+                        <div className="card border-0 rounded-3 shadow-sm flex-fill">
+                            <div className="card-header p-3 border-bottom d-flex justify-content-between">
+                                <div><i className="bi bi-file-earmark-fill text-primary"></i> Creative Brief Form</div>
+                                <div className="text-secondary">Fill manually or upload documents <i className="bi bi-arrow-right"></i></div>
                             </div>
                             <div className="card-body">
-                                <div className="row g-3 requirement-form-body">
+                                <div className="row g-2 requirement-form-body">
                                     {fieldConfig.map((field) => (
                                         <div className={field.size === "short" ? "col-12 col-md-6 col-xl-4" : "col-12 col-xl-6"} key={field.key}>
                                             <label className="form-label fw-semibold mb-1">{field.label}</label>
                                             {field.hint ? <p className="small text-secondary mb-1">{field.hint}</p> : null}
                                             {field.control === "input" ? (
-                                                <input
-                                                    className="form-control"
-                                                    type={field.inputType || "text"}
-                                                    placeholder="Enter your answer..."
-                                                    value={formValues[field.key]}
-                                                    disabled={isFormLocked}
-                                                    onChange={(event) => handleFieldChange(field.key, event.target.value)}
-                                                />
+                                                <input className="form-control" type={field.inputType || "text"} placeholder="Enter your answer..." value={formValues[field.key]} disabled={isFormLocked} onChange={(event) => handleFieldChange(field.key, event.target.value)} />
                                             ) : (
-                                                <textarea
-                                                    className="form-control"
-                                                    rows={field.rows}
-                                                    placeholder="Enter your answer..."
-                                                    value={formValues[field.key]}
-                                                    disabled={isFormLocked}
-                                                    onChange={(event) => handleFieldChange(field.key, event.target.value)}
-                                                />
+                                                <textarea className="form-control" rows={field.rows} placeholder="Enter your answer..." value={formValues[field.key]} disabled={isFormLocked} onChange={(event) => handleFieldChange(field.key, event.target.value)} />
                                             )}
                                         </div>
                                     ))}
@@ -367,17 +354,17 @@ export default function NewCreative() {
                             <div className="card-footer border-0">
                                 <div className="d-flex flex-wrap gap-2 justify-content-end">
                                     {isFormLocked ? (
-                                        <button className="btn btn-outline-secondary" type="button" onClick={() => setIsFormLocked(false)}>
+                                        <button className="btn btn-sm btn-outline-warning" type="button" onClick={() => setIsFormLocked(false)}>
                                             <i className="bi bi-pencil-square me-2"></i>
                                             Edit
                                         </button>
                                     ) : (
-                                        <button className="btn btn-danger" type="button" disabled={!canContinue} onClick={() => setIsFormLocked(true)}>
+                                        <button className="btn btn-sm btn-danger" type="button" disabled={!canContinue} onClick={() => setIsFormLocked(true)}>
                                             <i className="bi bi-stars me-2"></i>
                                             Continue
                                         </button>
                                     )}
-                                    <button className="btn btn-danger" type="button" disabled={!isFormLocked} onClick={() => navigate("/creatives/brief-analysis")}>
+                                    <button className="btn btn-sm btn-danger" type="button" disabled={!isFormLocked} onClick={() => navigate("/creatives/brief-analysis")}>
                                         <i className="bi bi-lightning-charge me-2"></i>
                                         Start Brief Analysis
                                     </button>
@@ -386,53 +373,80 @@ export default function NewCreative() {
                         </div>
                     </div>
                     <div className="col-12 col-lg-4 order-1 order-lg-2">
-                        <div className="card border shadow-sm mb-3">
+                        <div className="card border-0 shadow-sm mb-3">
                             <div className="card-body">
                                 <h2 className="h6 fw-semibold mb-3">
-                                    <i className="bi bi-upload me-2"></i>
-                                    Upload Brief
+                                    Select Asset Type
                                 </h2>
-                                <div className="border rounded-3 p-4 text-center bg-body-tertiary">
-                                    <div className="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger-subtle text-danger mb-3 p-3 lh-1">
-                                        <i className="bi bi-upload"></i>
+                                <div className="row">
+                                    <div className="col-6 col-md-4  mb-3">
+                                        <input type="radio" className="btn-check" name="options-base" id="option1" autoComplete="off" defaultChecked />
+                                        <label className="btn btn-outline-danger w-100" htmlFor="option1"><i className="bi bi-envelope-at-fill"></i><br />E-Mailer</label>
                                     </div>
-                                    <p className="text-secondary mb-3">Upload creative brief document</p>
-                                    <input className="form-control" type="file" disabled={isFormLocked} onChange={handleFileUpload} />
-                                    {uploadedFileName ? <p className="small text-success mt-2 mb-0">Loaded: {uploadedFileName}</p> : null}
+                                    <div className="col-6 col-md-4  mb-3">
+                                        <input type="radio" className="btn-check" name="options-base" id="option2" autoComplete="off" />
+                                        <label className="btn btn-outline-danger w-100" htmlFor="option2"><i className="bi bi-whatsapp"></i> <br />WhatsApp</label>
+                                    </div>
+                                    <div className="col-6 col-md-4  mb-3">
+                                        <input type="radio" className="btn-check" name="options-base" id="option3" autoComplete="off" />
+                                        <label className="btn btn-outline-danger w-100" htmlFor="option3"><i className="bi bi-patch-check-fill"></i><br />Banner</label>
+                                    </div>
+                                    <div className="col-6 col-md-4  mb-3">
+                                        <input type="radio" className="btn-check" name="options-base" id="option4" autoComplete="off" />
+                                        <label className="btn btn-outline-danger w-100" htmlFor="option4"><i className="bi bi-phone"></i> <br />Socila Media Post</label>
+                                    </div>
+                                    <div className="col-6 col-md-4  mb-3">
+                                        <input type="radio" className="btn-check" name="options-base" id="option5" autoComplete="off" />
+                                        <label className="btn btn-outline-danger w-100" htmlFor="option5"><i className="bi bi-browser-chrome"></i> <br />Landing Page</label>
+                                    </div>
+                                    <div className="col-6 col-md-4  mb-3">
+                                        <input type="radio" className="btn-check" name="options-base" id="option6" autoComplete="off" />
+                                        <label className="btn btn-outline-danger w-100" htmlFor="option6"><i className="bi bi-newspaper"></i><br /> Newsletter</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="card border shadow-sm mb-3">
-                            <div className="card-body">
-                                <h2 className="h6 fw-semibold mb-3">
-                                    <i className="bi bi-file-earmark-text me-2"></i>
-                                    Creative Description
-                                </h2>
-                                <textarea className="form-control" rows={4} placeholder="Add any additional notes or context about your campaign..." value={formValues.creativeDescription} disabled={isFormLocked} onChange={(event) => handleFieldChange("creativeDescription", event.target.value)} />
-                            </div>
-                        </div>
-
-                        <div className="card border shadow-sm">
-                            <div className="card-header bg-danger-subtle">
-                                <h2 className="h6 fw-semibold mb-0">
-                                    <i className="bi bi-stars me-2"></i>
-                                    AI Assistant
-                                </h2>
-                                <p className="small mb-0 text-secondary">Get help filling the form</p>
-                            </div>
-                            <div className="card-body">
-                                <div className="bg-body-tertiary rounded-3 p-3 small mb-3">
-                                    Hello! I&apos;m here to help you fill out your creative requirements. I can suggest content, refine your answers, or answer questions about any field.
-                                </div>
-                                <div className="input-group">
-                                    <input className="form-control" type="text" placeholder="Ask AI for help..." />
-                                    <button className="btn btn-danger" type="button">
-                                        <i className="bi bi-send"></i>
-                                    </button>
+                        <div className="row g-2">
+                            <div className="col-6 mb-3">
+                                <div className="card border-0 shadow-sm">
+                                    <div className="card-body">
+                                        <h2 className="h6 fw-semibold mb-2">
+                                            <i className="bi bi-upload me-2"></i>
+                                            Upload Brief
+                                        </h2>
+                                        <div className="border-0 shadow-sm rounded-3 p-2 text-center bg-body-tertiary">
+                                            <div className="d-flex justify-content-between">
+                                                <div className="rounded-circle bg-danger-subtle text-danger mb-2 p-2 lh-1 me-2">
+                                                    <i className="bi bi-upload"></i>
+                                                </div>
+                                                <input className="form-control form-control-sm" type="file" disabled={isFormLocked} onChange={handleFileUpload} />
+                                            </div>
+                                            {uploadedFileName ? <small className="small text-success mt-2">Loaded: {uploadedFileName}</small> : null}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <div className="col-6 mb-3">
+                                <div className="card border-0 shadow-sm">
+                                    <div className="card-body">
+                                        <h2 className="h6 fw-semibold mb-2">
+                                            <i className="bi bi-upload me-2"></i>
+                                            Upload Reference
+                                        </h2>
+                                        <div className="border-0 shadow-sm rounded-3 p-2 text-center bg-body-tertiary">
+                                            <div className="d-flex justify-content-between">
+                                                <div className="rounded-circle bg-danger-subtle text-danger mb-2 p-2 lh-1 me-2">
+                                                    <i className="bi bi-upload"></i>
+                                                </div>
+                                                <input className="form-control form-control-sm" type="file" disabled={isFormLocked} onChange={handleFileUpload} />
+                                            </div>
+                                            {uploadedFileName ? <small className="small text-success mt-2">Loaded: {uploadedFileName}</small> : null}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <AIChatSection />
                     </div>
                 </div>
             </div>

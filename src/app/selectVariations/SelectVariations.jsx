@@ -2,24 +2,27 @@ import { useState } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
 import CreativeWorkflowSteps from "../../components/CreativeWorkflowSteps"
 import { useNavigate } from "react-router-dom"
+import AIChatSection from "../../components/AIChatSection"
 
 const sectionConfig = [
     {
         key: "hero",
         label: "Hero",
+        icon: <i className="bi bi-transparency"></i>,
         heading: "Select Hero Layout",
         subheading: "Choose the layout that best captures attention.",
         previewType: "hero",
         variations: [
-            { image:"/Image (Family Bonding) (1).svg", title: "Family Bonding", sub: "Secure Her Future with Axis Bank SSY", tags: ["Centered", "Family", "Orange"] },
-            { image:"/Image (Empowerment).svg", title: "Empowerment", sub: "Build Her Dreams Today", tags: ["Split 50:50", "Girl studying"] },
-            { image:"/Image (Future Success).svg", title: "Future Success", sub: "Invest in Her Future", tags: ["Overlay", "Graduation"] },
-            { image:"/Image (Parent & Child).svg", title: "Parent & Child", sub: "Secure Tomorrow Today", tags: ["Side by side", "Parent-child"] },
+            { image: "/Image (Family Bonding) (1).svg", title: "Family Bonding", sub: "Secure Her Future with Axis Bank SSY", tags: ["Centered", "Family", "Orange"] },
+            { image: "/Image (Empowerment).svg", title: "Empowerment", sub: "Build Her Dreams Today", tags: ["Split 50:50", "Girl studying"] },
+            { image: "/Image (Future Success).svg", title: "Future Success", sub: "Invest in Her Future", tags: ["Overlay", "Graduation"] },
+            { image: "/Image (Parent & Child).svg", title: "Parent & Child", sub: "Secure Tomorrow Today", tags: ["Side by side", "Parent-child"] },
         ],
     },
     {
         key: "greeting",
         label: "Greeting",
+        icon: "👋",
         heading: "Select Greeting Style",
         subheading: "Choose the tone that fits your brand.",
         previewType: "greeting",
@@ -33,6 +36,7 @@ const sectionConfig = [
     {
         key: "description",
         label: "Description",
+        icon: "📝",
         heading: "Select Description Layout",
         subheading: "Choose the most readable format.",
         previewType: "description",
@@ -46,6 +50,7 @@ const sectionConfig = [
     {
         key: "features",
         label: "Features",
+        icon: "✨",
         heading: "Select Features/Benefits Layout",
         subheading: "Choose how to present key features.",
         previewType: "features",
@@ -59,6 +64,7 @@ const sectionConfig = [
     {
         key: "steps",
         label: "Steps",
+        icon: "🚀",
         heading: "Select Steps/Get Started Layout",
         subheading: "Choose the most scannable format.",
         previewType: "steps",
@@ -72,6 +78,7 @@ const sectionConfig = [
     {
         key: "contact",
         label: "Contact",
+        icon: "📞",
         heading: "Select Contact Section Layout",
         subheading: "Choose the most accessible format.",
         previewType: "contact",
@@ -85,6 +92,7 @@ const sectionConfig = [
     {
         key: "terms",
         label: "Terms",
+        icon: "📄",
         heading: "Select Terms & Conditions Layout",
         subheading: "Choose the most readable format.",
         previewType: "terms",
@@ -98,6 +106,7 @@ const sectionConfig = [
     {
         key: "cta",
         label: "CTA",
+        icon: "🎯",
         heading: "Select Call-to-Action Layout",
         subheading: "Choose the most compelling format.",
         previewType: "cta",
@@ -111,6 +120,7 @@ const sectionConfig = [
     {
         key: "footer",
         label: "Footer",
+        icon: "📎",
         heading: "Select Footer Layout",
         subheading: "Choose your preferred style.",
         previewType: "footer",
@@ -138,11 +148,9 @@ export default function SelectVariations() {
         switch (currentSection.previewType) {
             case "hero":
                 return (
-                    <div className="border rounded p-2 bg-body-tertiary">
+                    <div>
                         <h6 className="text-center fw-bold text-danger mb-2">Secure Her Future with Axis Bank SSY</h6>
-                        <div className="rounded border bg-light d-flex align-items-center justify-content-center" style={{ minHeight: "72vh" }}>
-                                <img className="img-fluid w-100" src="/Image (Family Bonding).svg" />
-                        </div>
+                        <img className="img-fluid w-100" src="/Image (Family Bonding).svg" />
                     </div>
                 )
             case "greeting":
@@ -197,99 +205,62 @@ export default function SelectVariations() {
             <div className={`p-2 ${theme === "light" ? "headerBg" : "bg-dark"}`}>
                 <h4 className="fw-bold text-light mb-0">Select Variations</h4>
             </div>
-            <div className="container-fluid my-3">
-                <CreativeWorkflowSteps currentStep="variations" />
-                <div className="card border shadow-sm mt-3">
-                    <div className="card-body py-2">
+            <div className="container-fluid my-2">
+                <div className="card border-0 p-2 mb-2">
+                    <CreativeWorkflowSteps currentStep="variations" />
+                    <div className="py-2">
                         <div className="d-flex flex-wrap align-items-center gap-1">
                             {sectionConfig.map((section) => (
-                                <button key={section.key} type="button" className={`btn btn-sm rounded-pill py-0 border ${section.key === activeSection ? "btn-primary text-white border-primary" : "btn-light text-secondary border-secondary-subtle"}`} onClick={() => setActiveSection(section.key)}>
-                                    <i className="bi bi-layout-text-window me-1"></i>{section.label}
+                                <button key={section.key} type="button" className={`btn btn-sm rounded-pill border ${section.key === activeSection ? "btn-danger text-white" : "btn-white text-secondary border-danger"}`} onClick={() => setActiveSection(section.key)}>
+                                    <span className="me-1">{section.icon}</span>{section.label}
                                 </button>
                             ))}
                         </div>
                     </div>
                 </div>
-
-                <section className="card border shadow-sm mt-3">
-                    <div className="card-body">
-                        <div className="row g-3">
-                            <div className="col-12 col-xl-8">
-                                <h5 className="fw-bold mb-1">{currentSection.heading}</h5>
-                                <p className="small text-secondary mb-2">{currentSection.subheading}</p>
-                                <h6 className="fw-semibold mb-2">Live Preview</h6>
-                                {renderPreview()}
-                                <div className="d-flex justify-content-end mt-3">
-                                    <button type="button" className="btn btn-primary" onClick={() => navigate("/creatives/preview-export")}>
-                                        Continue
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="col-12 col-xl-4">
-                                <div className="row g-2">
-                                    <div className="col-12 col-lg-6 col-xl-12">
-                                        <div className="card border">
-                                            <div className="card-header bg-light fw-semibold">Choose Variation</div>
-                                            <div className="card-body p-2 d-grid gap-2" style={{ maxHeight: "290px", overflowY: "auto" }}>
-                                                {currentSection.variations.map((card, index) => (
-                                                    <button key={`${currentSection.key}-${card.title}`} type="button" className={`btn text-start border ${index === currentVariationIndex ? "border-primary bg-primary-subtle" : "border-secondary-subtle bg-body"}`} onClick={() => setSelectedVariationBySection((prev) => ({ ...prev, [activeSection]: index }))}>
-                                                        <div className="d-flex gap-2">
-                                                            <img className="img-fluid" src={card.image}/>
-                                                            <div className="flex-grow-1">
-                                                                <div className="fw-semibold">{card.title}</div>
-                                                                <div className="small text-secondary">{card.sub}</div>
-                                                                <div className="d-flex flex-wrap gap-1 mt-1">
-                                                                    {card.tags.map((tag) => (
-                                                                        <span key={`${card.title}-${tag}`} className="badge text-bg-light border">
-                                                                            {tag}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                ))}
+                <div className="row g-2">
+                    <div className="col-xl-5">
+                        <div className="mb-2">
+                            <h5 className="fw-bold mb-1">{currentSection.heading}</h5>
+                            <small clssName="small text-secondary mb-2">{currentSection.subheading}</small>
+                            <p className="my-2 fw-bold">Choose Variation</p>
+                            <div className="row g-2">
+                                {currentSection.variations.map((card, index) => (
+                                    <div className="col-lg-6">
+                                        <button key={`${currentSection.key}-${card.title}`} type="button" className={`btn text-start w-100 border ${index === currentVariationIndex ? "border-primary bg-primary-subtle" : "border-danger"}`} onClick={() => setSelectedVariationBySection((prev) => ({ ...prev, [activeSection]: index }))}>
+                                            <div className="d-flex gap-2">
+                                                <img className="img-fluid" src={card.image} />
+                                                <div className="flex-grow-1">
+                                                    <div className="fw-semibold">{card.title}</div>
+                                                    <div className="small text-secondary">{card.sub}</div>
+                                                    <div className="d-flex flex-wrap gap-1 mt-1">
+                                                        {card.tags.map((tag) => (
+                                                            <span key={`${card.title}-${tag}`} className="badge text-bg-light border">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </button>
                                     </div>
-
-                                    <div className="col-12 col-lg-6 col-xl-12">
-                                        <div className="card border">
-                                            <div className="card-header bg-light fw-semibold">
-                                                <i className="bi bi-stars text-primary me-2"></i>
-                                                AI Assistant
-                                            </div>
-                                            <div className="card-body">
-                                                <p className="small text-secondary mb-2">Editing: <span className="fw-semibold text-primary">{currentVariation.title}</span></p>
-                                                <div className="small mb-3">
-                                                    <div><strong>Section:</strong> {currentSection.label}</div>
-                                                    <div><strong>Variation:</strong> V1</div>
-                                                </div>
-                                                <div className="d-flex flex-wrap gap-1 mb-3">
-                                                    {currentVariation.tags.map((tag) => (
-                                                        <span key={`${currentVariation.title}-${tag}`} className="badge text-bg-light border">{tag}</span>
-                                                    ))}
-                                                </div>
-                                                <div className="d-grid gap-2 mb-3">
-                                                    <button type="button" className="btn btn-outline-primary btn-sm text-start">Make copy clearer</button>
-                                                    <button type="button" className="btn btn-outline-primary btn-sm text-start">Emphasize benefits</button>
-                                                    <button type="button" className="btn btn-outline-primary btn-sm text-start">Change style</button>
-                                                </div>
-                                                <div className="input-group">
-                                                    <input type="text" className="form-control" placeholder="Ask me to edit..." />
-                                                    <button type="button" className="btn btn-primary">
-                                                        <i className="bi bi-send"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
+                        <AIChatSection />
                     </div>
-                </section>
+                    <div className="col-xl-7">
+                        <div className="card border-0 pt-2">
+                            <div className="d-flex justify-content-between pt-2 px-3">
+                                <h6 className="fw-semibold">Live Preview</h6>
+                                <button type="button" className="btn btn-sm button-primary" onClick={() => navigate("/creatives/preview-export")}>
+                                    Continue
+                                </button>
+                            </div>
+                            {renderPreview()}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
