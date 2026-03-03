@@ -1,13 +1,18 @@
 import { Link } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
-import { useUserContext } from "../contexts/UserContext";
+import { useQueryClient } from "@tanstack/react-query";
+import { useThemeStore } from "../stores/themeStore";
+import { useUserStore } from "../stores/userStore";
 
 export default function Header() {
-    const { theme, toggleTheme } = useTheme();
-    const { userDetails } = useUserContext();
+    const theme = useThemeStore((state) => state.theme);
+    const toggleTheme = useThemeStore((state) => state.toggleTheme);
+    const userDetails = useUserStore((state) => state.userDetails);
+    const clearUserDetails = useUserStore((state) => state.clearUserDetails);
+    const queryClient = useQueryClient();
 
     const handleLogout = () => {
-        localStorage.clear();
+        clearUserDetails();
+        queryClient.clear();
         window.location.href = "/";
     }
 
@@ -34,7 +39,7 @@ export default function Header() {
                             <li className="nav-item">
                                 <div className="dropdown">
                                     <button className="btn button-primary-outline dropdown rounded-circle fw-bold text-danger" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        {userDetails.shortName}
+                                        {userDetails.shortName || "U"}
                                     </button>
                                     <ul className="dropdown-menu dropdown-menu-end w-50">
                                         <li><button className="dropdown-item">My Profile</button></li>

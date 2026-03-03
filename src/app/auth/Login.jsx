@@ -1,16 +1,33 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useUserContext } from '../../contexts/UserContext';
-import { saveToLocalStorage } from '../../utils/helpers';
-import apiService from '../api/apiService';
+import { useMutation } from '@tanstack/react-query';
+import { fetchGoogleUserProfile } from '../api/apiService';
+import { useThemeStore } from '../../stores/themeStore';
+import { useUserStore } from '../../stores/userStore';
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { theme } = useTheme();
-    const { setUserDetails } = useUserContext();
+    const theme = useThemeStore((state) => state.theme);
+    const setUserDetails = useUserStore((state) => state.setUserDetails);
+
+    const googleProfileMutation = useMutation({
+        mutationFn: fetchGoogleUserProfile,
+    });
+
+    const getShortName = (name = "") => {
+        const nameParts = name.trim().split(" ").filter(Boolean)
+        if (nameParts.length === 0) {
+            return "U"
+        }
+
+        if (nameParts.length === 1) {
+            return nameParts[0][0].toUpperCase()
+        }
+
+        return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase()
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,10 +44,10 @@ export default function Login() {
             const sessionData = {
                 userName: payload.userName,
                 shortName: shortNameBase[0].toUpperCase(),
+                name: payload.userName,
             };
 
             setUserDetails(sessionData);
-            saveToLocalStorage("user", sessionData)
             navigate("/dashboard", { replace: true });
         } catch (error) {
             console.log(error);
@@ -43,24 +60,13 @@ export default function Login() {
                 if (!tokenResponse?.access_token) {
                     throw new Error("No access token found in response.");
                 }
-                const response = await apiService.get(
-                    'https://www.googleapis.com/oauth2/v3/userinfo',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${tokenResponse.access_token}`
-                        }
-                    }
-                );
-                const userData = response.data;
+                const userData = await googleProfileMutation.mutateAsync(tokenResponse.access_token);
                 const sessionData = {
                     ...userData,
                     authType: 'google',
                     loginAt: new Date().toISOString()
                 };
-                let shortNameArray = userData.name.split(" ");
-                let shortName = shortNameArray[0][0] + shortNameArray[1][0];
-                sessionData.shortName = shortName.toUpperCase();
-                saveToLocalStorage('user', sessionData);
+                sessionData.shortName = getShortName(userData.name);
                 setUserDetails(sessionData);
                 navigate('/dashboard');
             } catch (error) {

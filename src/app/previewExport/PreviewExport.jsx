@@ -1,21 +1,52 @@
-import { useTheme } from "../../contexts/ThemeContext"
+import { useThemeStore } from "../../stores/themeStore"
 import CreativeWorkflowSteps from "../../components/CreativeWorkflowSteps"
 import { useNavigate } from "react-router-dom"
+import { useRef, useState } from "react"
+import GrapesMjmlEditorPanel from "../../components/GrapesMjmlEditorPanel"
 
 export default function PreviewExport() {
-    const { theme } = useTheme()
+    const theme = useThemeStore((state) => state.theme)
     const navigate = useNavigate()
+    const editorPanelRef = useRef(null)
+    const [isDownloadingHtml, setIsDownloadingHtml] = useState(false)
+    const [isDownloadingBundle, setIsDownloadingBundle] = useState(false)
+
+    const handleDownloadHtml = async () => {
+        if (!editorPanelRef.current || isDownloadingHtml) {
+            return
+        }
+
+        setIsDownloadingHtml(true)
+        try {
+            await editorPanelRef.current.downloadHtml()
+        } finally {
+            setIsDownloadingHtml(false)
+        }
+    }
+
+    const handleDownloadBundle = async () => {
+        if (!editorPanelRef.current || isDownloadingBundle) {
+            return
+        }
+
+        setIsDownloadingBundle(true)
+        try {
+            await editorPanelRef.current.downloadBundle()
+        } finally {
+            setIsDownloadingBundle(false)
+        }
+    }
 
     return (
         <div>
             <div className={`p-2 ${theme === "light" ? "headerBg" : "bg-dark"}`}>
                 <h4 className="fw-bold text-light mb-0">Preview & Export</h4>
             </div>
-            <div className="container-fluid my-3">
+            <div className="container-fluid mt-3">
                 <CreativeWorkflowSteps currentStep="preview" />
 
-                <div className="row g-3 mt-1">
-                    <div className="col-12 col-xl-4">
+                <div className="row g-2 mt-1">
+                    <div className="col-12 col-xl-3">
                         <div className="card border shadow-sm mb-3">
                             <div className="card-body">
                                 <h5 className="fw-bold h6 mb-3">
@@ -24,10 +55,14 @@ export default function PreviewExport() {
                                 </h5>
                                 <div className="row g-2">
                                     <div className="col-md-6">
-                                        <button type="button" className="button-primary w-100 mb-2">Download HTML</button>
+                                        <button type="button" className="button-primary w-100 mb-2" onClick={handleDownloadHtml} disabled={isDownloadingHtml || isDownloadingBundle}>
+                                            {isDownloadingHtml ? "Preparing..." : "Download HTML"}
+                                        </button>
                                     </div>
                                     <div className="col-md-6">
-                                        <button type="button" className="button-primary w-100 mb-2">Download Creative Bundle</button>
+                                        <button type="button" className="button-primary w-100 mb-2" onClick={handleDownloadBundle} disabled={isDownloadingHtml || isDownloadingBundle}>
+                                            {isDownloadingBundle ? "Preparing..." : "Download Creative Bundle"}
+                                        </button>
                                         <p className="small text-secondary mb-0">Bundle includes: HTML, CSS, Images, Assets</p>
                                     </div>
                                 </div>
@@ -98,54 +133,11 @@ export default function PreviewExport() {
                         </div>
                     </div>
 
-                    <div className="col-12 col-xl-8">
-                        <div className="card border shadow-sm">
-                            <div className="card-body">
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <b className="fw-bold h6 mb-0">Email Preview</b>
-                                    <div className="btn-group">
-                                        <ul className="nav nav-pills me-2 border border-1 bg-dark-subtle rounded-3" id="pills-tab" role="tablist">
-                                            <li className="nav-item me-2" role="presentation">
-                                                <button className="nav-link active" id="pills-preview-tab" data-bs-toggle="pill" data-bs-target="#pills-preview" type="button" role="tab" aria-controls="pills-preview" aria-selected="true"><i className="bi bi-eye-fill"></i> Preview</button>
-                                            </li>
-                                            <li className="nav-item" role="presentation">
-                                                <button className="nav-link" id="pills-html-tab" data-bs-toggle="pill" data-bs-target="#pills-html" type="button" role="tab" aria-controls="pills-html" aria-selected="false"><i className="bi bi-code-slash"></i> Html</button>
-                                            </li>
-                                        </ul>
-                                        <div>
-                                            <input type="radio" className="btn-check" name="siteVite" id="desktopView" autoComplete="off" defaultChecked />
-                                            <label className="btn btn-outline-secondary btn-sm me-1 rounded-3" htmlFor="desktopView"><i className="bi bi-pc-display-horizontal"></i></label>
-                                        </div>
-                                        <div>
-                                            <input type="radio" className="btn-check" name="siteVite" id="mobileView" autoComplete="off" />
-                                            <label className="btn btn-outline-secondary btn-sm rounded-3" htmlFor="mobileView"><i className="bi bi-tablet"></i></label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="border rounded p-3 bg-body-tertiary">
-                                    <div className="tab-content" id="pills-tabContent">
-                                        <div className="tab-pane fade show active" id="pills-preview" role="tabpanel" aria-labelledby="pills-preview-tab" tabindex="0">
-                                            <h2 className="h2 text-center text-danger fw-bold mb-2">Secure Her Future with Axis Bank SSY</h2>
-                                            <p className="text-center fw-semibold mb-2">Start Early, Invest Wisely for Her Bright Future</p>
-                                            <p className="small text-center mb-3">Axis Bank&apos;s Sukanya Samriddhi Yojana (SSY) offers a simple, trusted, and rewarding investment option for your girl child&apos;s future education and marriage expenses.</p>
-                                            <img className="img-fluid mb-3 w-100" src="/Image (Family Bonding).svg" />
-                                            <p className="mb-3">Dear {"{Customer_Name}"}, ensure a prosperous future for your daughter today.</p>
-                                            <h5 className="fw-bold mb-2">Why Choose Us?</h5>
-                                            <div className="bg-warning-subtle rounded px-2 py-2 mb-2 fw-semibold"><span className="badge text-bg-warning me-2">1</span>Government-Backed Scheme</div>
-                                            <div className="bg-warning-subtle rounded px-2 py-2 mb-2 fw-semibold"><span className="badge text-bg-warning me-2">2</span>Tax Benefits</div>
-                                            <div className="text-center my-4"><button type="button" className="btn btn-warning text-white fw-semibold">Open an SSY Account Today</button></div>
-                                            <hr />
-                                            <p className="small text-center text-secondary mb-1">Terms and conditions apply. Rates and offers subject to change.</p>
-                                            <p className="small text-center text-secondary mb-0">© 2026 Axis Bank. All rights reserved.</p></div>
-                                        <div className="tab-pane fade" id="pills-html" role="tabpanel" aria-labelledby="pills-html-tab" tabindex="0">html</div>
-                                    </div>
-                                </div>
+                    <div className="col-12 col-xl-9">
+                                <GrapesMjmlEditorPanel ref={editorPanelRef} />
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
         </div>
     )
 }

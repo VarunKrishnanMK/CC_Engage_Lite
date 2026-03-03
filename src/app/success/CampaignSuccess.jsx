@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom"
-import { useTheme } from "../../contexts/ThemeContext"
+import { useThemeStore } from "../../stores/themeStore"
 
 export default function CampaignSuccess() {
     const navigate = useNavigate()
-    const { theme } = useTheme()
+    const theme = useThemeStore((state) => state.theme)
 
     return (
         <div>

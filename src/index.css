@@ -266,3 +266,79 @@ input[type=number] {
         padding: 10px
     }
 }
+
+.gjs-page-shell {
+    min-height: calc(100vh - 56px);
+}
+
+.gjs-page-card {
+    min-height: calc(100vh - 126px);
+}
+
+.gjs-page-card .card-body {
+    display: flex;
+    flex-direction: column;
+    min-height: inherit;
+}
+
+.gjs-editor-wrap {
+    flex: 1;
+    min-height: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.gjs-editor-wrap .gjs {
+    height: 100%;
+    background: #f8fafc;
+}
+
+.gjs-editor-wrap .gjs-cv-canvas {
+    background-color: #ffffff;
+}
+
+.gjs-editor-wrap.gjs-theme-light {
+    border: 1px solid #e5e7eb;
+    background: #f3f4f6;
+}
+
+.gjs-editor-wrap.gjs-theme-light .gjs {
+    --gjs-primary-color: #ffffff;
+    --gjs-secondary-color: #eef2f7;
+    --gjs-text-color: #1f2937;
+}
+
+.gjs-editor-wrap.gjs-theme-light .gjs-one-bg {
+    background-color: #ffffff;
+}
+
+.gjs-editor-wrap.gjs-theme-light .gjs-two-color,
+.gjs-editor-wrap.gjs-theme-light .gjs-three-color,
+.gjs-editor-wrap.gjs-theme-light .gjs-four-color {
+    color: #1f2937;
+}
+
+.gjs-editor-wrap.gjs-theme-light .gjs-two-bg,
+.gjs-editor-wrap.gjs-theme-light .gjs-three-bg {
+    background-color: #eef2f7;
+}
+
+.gjs-editor-wrap.gjs-theme-dark {
+    border: 1px solid #374151;
+    background: #111827;
+}
+
+.gjs-editor-wrap.gjs-theme-dark .gjs-one-bg {
+    background-color: #1f2937;
+}
+
+.gjs-editor-wrap.gjs-theme-dark .gjs-two-bg,
+.gjs-editor-wrap.gjs-theme-dark .gjs-three-bg {
+    background-color: #111827;
+}
+
+.gjs-editor-wrap.gjs-theme-dark .gjs-two-color,
+.gjs-editor-wrap.gjs-theme-dark .gjs-three-color,
+.gjs-editor-wrap.gjs-theme-dark .gjs-four-color {
+    color: #e5e7eb;
+}

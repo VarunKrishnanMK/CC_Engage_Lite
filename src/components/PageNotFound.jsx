@@ -1,7 +1,7 @@
-import { useTheme } from "../contexts/ThemeContext";
+import { useThemeStore } from "../stores/themeStore";
 
 function NotFoundPage() {
-    const { theme } = useTheme();
+    const theme = useThemeStore((state) => state.theme);
 
     return (
         <div className="d-flex align-items-center justify-content-center min-vh-100" data-bs-theme={theme}>

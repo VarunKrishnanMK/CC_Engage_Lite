@@ -2,7 +2,7 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 const apiService = axios.create({
-    baseURL: "https://dummyjson.com",
+    baseURL: "http://localhost:8001/api",
     headers: {
         "Content-Type": "application/json",
     },
@@ -89,5 +89,60 @@ export const loginUser = async ({ username, password, expiresInMins = 30 }) => {
     })
     return response.data
 }
+
+export const fetchGoogleUserProfile = async (accessToken) => {
+    const response = await apiService.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+
+    return response.data
+}
+
+export const uploadBriefFile = async ({ file, channel = "email", category = "normal", campaignName = "SSY 2025" }) => {
+    const payload = new FormData()
+    payload.append("file", file)
+    payload.append("channel", channel)
+    payload.append("category", category)
+    payload.append("initiated_by", "human_upload")
+    payload.append("mock", false)
+    payload.append("campaign_name", campaignName)
+    const response = await apiService.post("/activity1/briefs/upload", payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    })
+    return response.data
+}
+
+export const getBriefStatus = async (id) => {
+    const response = await apiService.get(`/activity1/briefs/${id}/status`, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    })
+    return response.data
+}
+
+export const getBrief = async (id) => {
+    const response = await apiService.get(`/activity1/briefs/${id}`, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    })
+    return response.data
+}
+
+export const updateBrief = async (id, payload = {}) => {
+    const response = await apiService.put(`/activity1/briefs/${id}`, payload)
+    return response.data
+}
+
+export const confirmBrief = async (id, payload = {}) => {
+    const response = await apiService.post(`/activity1/briefs/${id}/confirm`, payload)
+    return response.data
+}
+
 
 export default apiService

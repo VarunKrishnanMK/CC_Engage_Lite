@@ -51,26 +51,6 @@ export const decryptData = (encryptedObject) => {
     }
 };
 
-export const saveToLocalStorage = (key, value) => {
-    const encryptedValue = CryptoJS.AES.encrypt(JSON.stringify(value), SECRET_KEY_FRONTEND_STORAGE).toString();
-    localStorage.setItem(key, encryptedValue);
-};
-
-export const getFromLocalStorage = (key) => {
-    const encryptedValue = localStorage.getItem(key);
-    if (!encryptedValue) {
-        return null;
-    }
-    try {
-        const bytes = CryptoJS.AES.decrypt(encryptedValue, SECRET_KEY_FRONTEND_STORAGE);
-        const decryptedValue = bytes.toString(CryptoJS.enc.Utf8);
-        if (decryptedValue) return JSON.parse(decryptedValue);
-        else return null;
-    } catch (error) {
-        return null;
-    }
-};
-
 export function formatTime(timestamp) {
     if (!timestamp) return "";
     const dateObj = new Date(timestamp);

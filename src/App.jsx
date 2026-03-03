@@ -2,21 +2,22 @@ import { BrowserRouter, Route, Routes } from "react-router-dom"
 import Login from "./app/auth/Login"
 import Dashboard from "./app/dashboard/Dashboard"
 import NewCreative from "./app/creatives/NewCreative"
-import BriefAnalysis from "./app/briefAnalysis/BriefAnalysis"
 import SelectVariations from "./app/selectVariations/SelectVariations"
 import PreviewExport from "./app/previewExport/PreviewExport"
 import CampaignSuccess from "./app/success/CampaignSuccess"
 import NotFound from "./components/PageNotFound"
 import { Suspense, useEffect } from "react"
-import { ThemeProvider } from "./contexts/ThemeContext"
 import { Toaster } from "react-hot-toast"
 import { GoogleOAuthProvider } from "@react-oauth/google"
-import { UserDetailsProvider } from "./contexts/UserContext"
-import { LoadingProvider, useLoader } from "./contexts/LoadingContext"
 import { configureApiService } from "./app/api/apiService"
+import Loader from "./components/Loader"
+import { useLoadingStore } from "./stores/loadingStore"
+import { useThemeStore } from "./stores/themeStore"
 
 function AppInitializer() {
-    const { showLoading, hideLoading } = useLoader()
+    const showLoading = useLoadingStore((state) => state.showLoading)
+    const hideLoading = useLoadingStore((state) => state.hideLoading)
+    const hydrated = useThemeStore((state) => state.hydrated)
 
     useEffect(() => {
         configureApiService({
@@ -25,7 +26,28 @@ function AppInitializer() {
         })
     }, [showLoading, hideLoading])
 
-    return null
+    if (!hydrated) {
+        return <div style={{ visibility: "hidden" }} />
+    }
+
+    return (
+        <>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Login />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/creatives/new" element={<NewCreative />} />
+                    <Route path="/creatives/select-variations" element={<SelectVariations />} />
+                    <Route path="/creatives/preview-export" element={<PreviewExport />} />
+                    <Route path="/creatives/success" element={<CampaignSuccess />} />
+                    <Route path="/*" element={<NotFound />} />
+                </Routes>
+            </BrowserRouter>
+            <Toaster position="top-right" reverseOrder={false} toastOptions={{ duration: 5000, removeDelay: 2000 }} />
+            <Loader />
+        </>
+    )
 }
 
 function App() {
@@ -33,29 +55,9 @@ function App() {
 
     return (
         <GoogleOAuthProvider clientId={OAuthClientId}>
-            <LoadingProvider>
+            <Suspense fallback={null}>
                 <AppInitializer />
-                <Suspense fallback={null}>
-                    <UserDetailsProvider>
-                        <ThemeProvider>
-                            <BrowserRouter>
-                                <Routes>
-                                    <Route path="/" element={<Login />} />
-                                    <Route path="/login" element={<Login />} />
-                                    <Route path="/dashboard" element={<Dashboard />} />
-                                    <Route path="/creatives/new" element={<NewCreative />} />
-                                    <Route path="/creatives/brief-analysis" element={<BriefAnalysis />} />
-                                    <Route path="/creatives/select-variations" element={<SelectVariations />} />
-                                    <Route path="/creatives/preview-export" element={<PreviewExport />} />
-                                    <Route path="/creatives/success" element={<CampaignSuccess />} />
-                                    <Route path="/*" element={<NotFound />} />
-                                </Routes>
-                            </BrowserRouter>
-                            <Toaster position="top-right" reverseOrder={false} />
-                        </ThemeProvider>
-                    </UserDetailsProvider>
-                </Suspense>
-            </LoadingProvider>
+            </Suspense>
         </GoogleOAuthProvider>
     )
 }

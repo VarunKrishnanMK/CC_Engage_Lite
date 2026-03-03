@@ -1,27 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-import { useLoader } from "../contexts/LoadingContext";
-import { useTheme } from "../contexts/ThemeContext";
+import { useLoadingStore } from "../stores/loadingStore";
+import { useThemeStore } from "../stores/themeStore";
 
 
 export default function AIChatSection() {
     const [prompt, setPrompt] = useState("");
-    const { isLoading } = useLoader();
-    const { theme } = useTheme();
+    const isLoading = useLoadingStore((state) => state.isLoading);
+    const theme = useThemeStore((state) => state.theme);
     const [listening, setListening] = useState(false);
-    const messagesEndRef = useRef(null);
     const recognitionRef = useRef(null);
 
     const startRecording = useCallback(() => {
         try {
             recognitionRef.current?.start();
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
     }, []);
 
     const stopRecording = useCallback(() => {
         try {
             recognitionRef.current?.stop();
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
     }, []);
 
     useEffect(() => {

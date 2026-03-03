@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 import Header from "../../components/Header";
-import { useUserContext } from "../../contexts/UserContext";
+import { useUserStore } from "../../stores/userStore";
 
 const metrics = [
     { label: "Total Creatives", value: "24", delta: "+12%", icon: "bi-collection" },
@@ -54,7 +54,7 @@ export default function Dashboard() {
     const weeklyChartRef = useRef(null);
     const statusChartRef = useRef(null);
     const engagementChartRef = useRef(null);
-    const { userDetails } = useUserContext();
+    const userDetails = useUserStore((state) => state.userDetails);
 
     useEffect(() => {
         const weeklyChart = echarts.init(weeklyChartRef.current);
@@ -180,7 +180,7 @@ export default function Dashboard() {
             <div className="dashboard-page">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h1 className="fs-4 fw-bold mb-1 text-body">Welcome back, {userDetails.name}✨</h1>
+                        <h1 className="fs-4 fw-bold mb-1 text-body">Welcome back, {userDetails.name || userDetails.userName || "User"}✨</h1>
                         <p className="text-secondary mb-0">
                             Here’s what’s happening with your creatives today.
                         </p>

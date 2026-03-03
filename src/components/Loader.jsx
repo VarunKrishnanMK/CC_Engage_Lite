@@ -1,7 +1,7 @@
-import { useLoader } from "../contexts/LoadingContext"
+import { useLoadingStore } from "../stores/loadingStore"
 
 export default function Loader() {
-    const { isLoading } = useLoader();
+    const isLoading = useLoadingStore((state) => state.isLoading);
 
     if (!isLoading) return null;
 

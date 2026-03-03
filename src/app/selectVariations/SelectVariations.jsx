@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useTheme } from "../../contexts/ThemeContext"
+import { useThemeStore } from "../../stores/themeStore"
 import CreativeWorkflowSteps from "../../components/CreativeWorkflowSteps"
 import { useNavigate } from "react-router-dom"
 import AIChatSection from "../../components/AIChatSection"
@@ -134,7 +134,7 @@ const sectionConfig = [
 ]
 
 export default function SelectVariations() {
-    const { theme } = useTheme()
+    const theme = useThemeStore((state) => state.theme)
     const navigate = useNavigate()
     const [activeSection, setActiveSection] = useState("hero")
     const [selectedVariationBySection, setSelectedVariationBySection] = useState(
@@ -142,7 +142,6 @@ export default function SelectVariations() {
     )
     const currentSection = sectionConfig.find((item) => item.key === activeSection) || sectionConfig[0]
     const currentVariationIndex = selectedVariationBySection[activeSection] ?? 0
-    const currentVariation = currentSection.variations[currentVariationIndex]
 
     const renderPreview = () => {
         switch (currentSection.previewType) {
@@ -219,7 +218,7 @@ export default function SelectVariations() {
                     </div>
                 </div>
                 <div className="row g-2">
-                    <div className="col-xl-5">
+                    <div className="col-xl-4">
                         <div className="mb-2">
                             <h5 className="fw-bold mb-1">{currentSection.heading}</h5>
                             <small clssName="small text-secondary mb-2">{currentSection.subheading}</small>
@@ -249,12 +248,12 @@ export default function SelectVariations() {
                         </div>
                         <AIChatSection />
                     </div>
-                    <div className="col-xl-7">
+                    <div className="col-xl-8">
                         <div className="card border-0 pt-2">
                             <div className="d-flex justify-content-between pt-2 px-3">
                                 <h6 className="fw-semibold">Live Preview</h6>
                                 <button type="button" className="btn btn-sm button-primary" onClick={() => navigate("/creatives/preview-export")}>
-                                    Continue
+                                    Continue to Editor
                                 </button>
                             </div>
                             {renderPreview()}
