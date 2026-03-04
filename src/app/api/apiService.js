@@ -144,5 +144,29 @@ export const confirmBrief = async (id, payload = {}) => {
     return response.data
 }
 
+export const generateTemplate = async (id) => {
+    const payload = new FormData()
+    payload.append("campaign_run_id", id)
+    payload.append("category", "normal")
+    payload.append("mock", false)
+    payload.append("type", "email")
+    const response = await apiService.post(`/activity2/outlines/generate`, payload)
+    return response.data
+}
+
+export const generateVariation = async (id) => {
+    const payload = {
+        campaign_run_id: id,
+        mock: false,
+        campaign_name: "SSY 2025",
+    }
+    const response = await apiService.post(`/activity3/generate`, payload)
+    return response.data
+}
+
+export const getAllVariations = async (id) => {
+    const response = await apiService.get(`/activity3/${id}/variants`)
+    return response.data
+}
 
 export default apiService

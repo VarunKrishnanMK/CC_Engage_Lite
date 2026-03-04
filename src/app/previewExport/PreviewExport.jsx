@@ -1,15 +1,19 @@
 import { useThemeStore } from "../../stores/themeStore"
 import CreativeWorkflowSteps from "../../components/CreativeWorkflowSteps"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useRef, useState } from "react"
 import GrapesMjmlEditorPanel from "../../components/GrapesMjmlEditorPanel"
+import { useCreativeFlowStore } from "../../stores/creativeFlowStore"
 
 export default function PreviewExport() {
     const theme = useThemeStore((state) => state.theme)
     const navigate = useNavigate()
+    const location = useLocation()
     const editorPanelRef = useRef(null)
     const [isDownloadingHtml, setIsDownloadingHtml] = useState(false)
     const [isDownloadingBundle, setIsDownloadingBundle] = useState(false)
+    const orderedMjmlFromStore = useCreativeFlowStore((state) => state.selectedOrderedMjml)
+    const orderedMjml = location?.state?.orderedMjml || orderedMjmlFromStore || ""
 
     const handleDownloadHtml = async () => {
         if (!editorPanelRef.current || isDownloadingHtml) {
@@ -61,9 +65,9 @@ export default function PreviewExport() {
                                     </div>
                                     <div className="col-md-6">
                                         <button type="button" className="button-primary w-100 mb-2" onClick={handleDownloadBundle} disabled={isDownloadingHtml || isDownloadingBundle}>
-                                            {isDownloadingBundle ? "Preparing..." : "Download Creative Bundle"}
+                                            {isDownloadingBundle ? "Preparing..." : "Download Bundle"}
                                         </button>
-                                        <p className="small text-secondary mb-0">Bundle includes: HTML, CSS, Images, Assets</p>
+                                        <p className="small text-secondary mb-0">Bundle includes: HTML, CSS, Assets</p>
                                     </div>
                                 </div>
                             </div>
@@ -134,10 +138,10 @@ export default function PreviewExport() {
                     </div>
 
                     <div className="col-12 col-xl-9">
-                                <GrapesMjmlEditorPanel ref={editorPanelRef} />
-                            </div>
-                        </div>
+                        <GrapesMjmlEditorPanel ref={editorPanelRef} initialMjml={orderedMjml} />
                     </div>
+                </div>
+            </div>
         </div>
     )
 }

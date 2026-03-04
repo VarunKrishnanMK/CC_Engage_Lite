@@ -170,10 +170,11 @@ const collectAssets = async (editor, { includeDataUrl = false } = {}) => {
   return assets
 }
 
-const GrapesMjmlEditorPanel = forwardRef(function GrapesMjmlEditorPanel(_, ref) {
+const GrapesMjmlEditorPanel = forwardRef(function GrapesMjmlEditorPanel({ initialMjml = "" }, ref) {
   const theme = useThemeStore((state) => state.theme)
   const containerRef = useRef(null)
   const editorRef = useRef(null)
+  const initialMjmlRef = useRef(initialMjml)
 
   useEffect(() => {
     if (!containerRef.current || editorRef.current) {
@@ -204,7 +205,7 @@ const GrapesMjmlEditorPanel = forwardRef(function GrapesMjmlEditorPanel(_, ref) 
       },
     })
 
-    editor.setComponents(DEFAULT_MJML_TEMPLATE)
+    editor.setComponents(ensureMjmlDocument(initialMjmlRef.current || DEFAULT_MJML_TEMPLATE))
     editorRef.current = editor
 
     return () => {
@@ -212,6 +213,16 @@ const GrapesMjmlEditorPanel = forwardRef(function GrapesMjmlEditorPanel(_, ref) 
       editorRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    if (!editorRef.current) {
+      return
+    }
+    if (!initialMjml?.trim()) {
+      return
+    }
+    editorRef.current.setComponents(ensureMjmlDocument(initialMjml))
+  }, [initialMjml])
 
   useImperativeHandle(ref, () => ({
     downloadHtml: async () => {

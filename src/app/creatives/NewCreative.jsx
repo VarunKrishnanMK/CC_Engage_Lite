@@ -5,6 +5,7 @@ import AIChatSection from "../../components/AIChatSection";
 import toast from "react-hot-toast";
 import { confirmBrief, getBrief, getBriefStatus, updateBrief, uploadBriefFile } from "../api/apiService";
 import { useThemeStore } from "../../stores/themeStore";
+import { useCreativeFlowStore } from "../../stores/creativeFlowStore";
 
 const getBriefUploadCacheKey = (file, assetType) => ["brief-upload", file.name, file.size, file.lastModified, assetType]
 const getBriefStatusCacheKey = (campaignRunId) => ["brief-status", campaignRunId]
@@ -220,7 +221,11 @@ export default function NewCreative() {
     const [campaignRunId, setCampaignRunId] = useState("")
     const [showConfirmModal, setShowConfirmModal] = useState(false)
     const [isFormLocked, setIsFormLocked] = useState(false)
-    const [channel, setChannel] = useState("email")
+    const storedAssetType = useCreativeFlowStore((state) => state.assetType)
+    const setCampaignRunIdInStore = useCreativeFlowStore((state) => state.setCampaignRunId)
+    const setAssetTypeInStore = useCreativeFlowStore((state) => state.setAssetType)
+    const setCreativeFlowContext = useCreativeFlowStore((state) => state.setCreativeFlowContext)
+    const [channel, setChannel] = useState(storedAssetType || "email")
     const navigate = useNavigate()
     const theme = useThemeStore((state) => state.theme)
     const queryClient = useQueryClient()
@@ -347,7 +352,9 @@ export default function NewCreative() {
             setFormValues((prev) => ({ ...prev, ...mappedValues }))
             setInitialFormValues((prev) => ({ ...prev, ...mappedValues }))
             setUploadedFileName(file.name)
-            setCampaignRunId(cachedResponse?.campaign_run_id || "")
+            const cachedCampaignRunId = cachedResponse?.campaign_run_id || ""
+            setCampaignRunId(cachedCampaignRunId)
+            setCampaignRunIdInStore(cachedCampaignRunId)
             toast.success("Brief loaded from cache and fields auto-filled.")
             event.target.value = ""
             return
@@ -368,6 +375,7 @@ export default function NewCreative() {
                 throw new Error("Upload response missing campaign_run_id")
             }
             setCampaignRunId(campaignRunId)
+            setCampaignRunIdInStore(campaignRunId)
 
             let briefStatusResponse = await fetchBriefStatusById(campaignRunId)
             if (briefStatusResponse?.status) {
@@ -437,7 +445,11 @@ export default function NewCreative() {
             })
             toast.success(confirmResponse?.message || "Brief confirmed successfully.")
             setShowConfirmModal(false)
-            navigate("/creatives/select-variations", { state: { assetType: selectedAssetType } })
+            setCreativeFlowContext({
+                assetType: selectedAssetType,
+                campaignRunId,
+            })
+            navigate("/creatives/select-variations")
         } catch (error) {
             console.error("Brief confirm failed", error)
         }
@@ -510,27 +522,27 @@ export default function NewCreative() {
                                     </h2>
                                     <div className="row">
                                         <div className="col-6 col-md-4  mb-3">
-                                            <input type="radio" className="btn-check" name="options-base" id="option1" autoComplete="off" value="email" checked={selectedAssetType === "email"} onChange={(event) => setChannel(event.target.value)} />
+                                            <input type="radio" className="btn-check" name="options-base" id="option1" autoComplete="off" value="email" checked={selectedAssetType === "email"} onChange={(event) => { setChannel(event.target.value); setAssetTypeInStore(event.target.value) }} />
                                             <label className="btn btn-outline-danger w-100" htmlFor="option1"><i className="bi bi-envelope-at-fill"></i><br />E-Mailer</label>
                                         </div>
                                         <div className="col-6 col-md-4  mb-3">
-                                            <input type="radio" className="btn-check" name="options-base" id="option2" autoComplete="off" value="whatsapp" checked={selectedAssetType === "whatsapp"} onChange={(event) => setChannel(event.target.value)} />
+                                            <input type="radio" className="btn-check" name="options-base" id="option2" autoComplete="off" value="whatsapp" checked={selectedAssetType === "whatsapp"} onChange={(event) => { setChannel(event.target.value); setAssetTypeInStore(event.target.value) }} />
                                             <label className="btn btn-outline-danger w-100" htmlFor="option2"><i className="bi bi-whatsapp"></i> <br />WhatsApp</label>
                                         </div>
                                         <div className="col-6 col-md-4  mb-3">
-                                            <input type="radio" className="btn-check" name="options-base" id="option3" autoComplete="off" value="banner" checked={selectedAssetType === "banner"} onChange={(event) => setChannel(event.target.value)} />
+                                            <input type="radio" className="btn-check" name="options-base" id="option3" autoComplete="off" value="banner" checked={selectedAssetType === "banner"} onChange={(event) => { setChannel(event.target.value); setAssetTypeInStore(event.target.value) }} />
                                             <label className="btn btn-outline-danger w-100" htmlFor="option3"><i className="bi bi-patch-check-fill"></i><br />Banner</label>
                                         </div>
                                         <div className="col-6 col-md-4  mb-3">
-                                            <input type="radio" className="btn-check" name="options-base" id="option4" autoComplete="off" value="social_media_post" checked={selectedAssetType === "social_media_post"} onChange={(event) => setChannel(event.target.value)} />
+                                            <input type="radio" className="btn-check" name="options-base" id="option4" autoComplete="off" value="social_media_post" checked={selectedAssetType === "social_media_post"} onChange={(event) => { setChannel(event.target.value); setAssetTypeInStore(event.target.value) }} />
                                             <label className="btn btn-outline-danger w-100" htmlFor="option4"><i className="bi bi-phone"></i> <br />Socila Media Post</label>
                                         </div>
                                         <div className="col-6 col-md-4  mb-3">
-                                            <input type="radio" className="btn-check" name="options-base" id="option5" autoComplete="off" value="landing_page" checked={selectedAssetType === "landing_page"} onChange={(event) => setChannel(event.target.value)} />
+                                            <input type="radio" className="btn-check" name="options-base" id="option5" autoComplete="off" value="landing_page" checked={selectedAssetType === "landing_page"} onChange={(event) => { setChannel(event.target.value); setAssetTypeInStore(event.target.value) }} />
                                             <label className="btn btn-outline-danger w-100" htmlFor="option5"><i className="bi bi-browser-chrome"></i> <br />Landing Page</label>
                                         </div>
                                         <div className="col-6 col-md-4  mb-3">
-                                            <input type="radio" className="btn-check" name="options-base" id="option6" autoComplete="off" value="newsletter" checked={selectedAssetType === "newsletter"} onChange={(event) => setChannel(event.target.value)} />
+                                            <input type="radio" className="btn-check" name="options-base" id="option6" autoComplete="off" value="newsletter" checked={selectedAssetType === "newsletter"} onChange={(event) => { setChannel(event.target.value); setAssetTypeInStore(event.target.value) }} />
                                             <label className="btn btn-outline-danger w-100" htmlFor="option6"><i className="bi bi-newspaper"></i><br /> Newsletter</label>
                                         </div>
                                     </div>

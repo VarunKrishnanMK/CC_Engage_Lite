@@ -267,6 +267,11 @@ input[type=number] {
     }
 }
 
+.variation-cards {
+    max-height: 21vh;
+    overflow-y: auto;
+}
+
 .gjs-page-shell {
     min-height: calc(100vh - 56px);
 }
