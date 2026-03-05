@@ -7,9 +7,11 @@ export const useCreativeFlowStore = create(
             assetType: "email",
             campaignRunId: "",
             selectedOrderedMjml: "",
+            selectedPathwayFooterBlock: null,
             setAssetType: (assetType) => set({ assetType }),
             setCampaignRunId: (campaignRunId) => set({ campaignRunId }),
             setSelectedOrderedMjml: (selectedOrderedMjml) => set({ selectedOrderedMjml }),
+            setSelectedPathwayFooterBlock: (selectedPathwayFooterBlock) => set({ selectedPathwayFooterBlock }),
             setCreativeFlowContext: ({ assetType, campaignRunId }) =>
                 set((state) => ({
                     assetType: assetType ?? state.assetType,
@@ -20,6 +22,7 @@ export const useCreativeFlowStore = create(
                     assetType: "email",
                     campaignRunId: "",
                     selectedOrderedMjml: "",
+                    selectedPathwayFooterBlock: null,
                 }),
         }),
         {
@@ -29,6 +32,7 @@ export const useCreativeFlowStore = create(
                 assetType: state.assetType,
                 campaignRunId: state.campaignRunId,
                 selectedOrderedMjml: state.selectedOrderedMjml,
+                selectedPathwayFooterBlock: state.selectedPathwayFooterBlock,
             }),
         }
     )

@@ -3,6 +3,7 @@ import { useThemeStore } from "../../stores/themeStore"
 import CreativeWorkflowSteps from "../../components/CreativeWorkflowSteps"
 import { useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
+import mjml2html from "mjml-browser"
 import AIChatSection from "../../components/AIChatSection"
 import { generateTemplate, generateVariation, getAllVariations } from "../api/apiService"
 import { useCreativeFlowStore } from "../../stores/creativeFlowStore"
@@ -118,6 +119,25 @@ const mapApiVariationsToSections = (variantsResponse = {}) => {
     return mappedSections
 }
 
+const extractPathwayFooterBlock = (staticBlocksResponse = {}) => {
+    if (!staticBlocksResponse || typeof staticBlocksResponse !== "object") {
+        return null
+    }
+
+    const pathwayFooter = staticBlocksResponse?.pathway_footer
+    if (!pathwayFooter || typeof pathwayFooter !== "object") {
+        return null
+    }
+
+    return {
+        key: "pathway_footer",
+        mjml: pathwayFooter?.mjml || pathwayFooter?.myml || "",
+        description: pathwayFooter?.description || "",
+        slotRole: pathwayFooter?.slot_role || "",
+        raw: pathwayFooter,
+    }
+}
+
 const normalizeMjmlSnippet = (snippet = "") => {
     const content = String(snippet || "").trim()
     if (!content) {
@@ -132,7 +152,20 @@ const normalizeMjmlSnippet = (snippet = "") => {
     return content
 }
 
-const buildOrderedMjmlDocument = (sectionOrder, selectedVariationBySection, sectionVariations) => {
+const ensureMjmlDocument = (rawMarkup = "") => {
+    const trimmed = String(rawMarkup || "").trim()
+    if (!trimmed) {
+        return ""
+    }
+
+    if (/<mjml[\s>]/i.test(trimmed)) {
+        return trimmed
+    }
+
+    return `<mjml><mj-body>${trimmed}</mj-body></mjml>`
+}
+
+const buildOrderedMjmlDocument = (sectionOrder, selectedVariationBySection, sectionVariations, pathwayFooterBlock) => {
     const orderedSnippets = sectionOrder
         .map((section) => {
             const selectedIndex = selectedVariationBySection[section.key]
@@ -145,6 +178,11 @@ const buildOrderedMjmlDocument = (sectionOrder, selectedVariationBySection, sect
             return normalizeMjmlSnippet(rawMjml)
         })
         .filter(Boolean)
+
+    const footerSnippet = normalizeMjmlSnippet(pathwayFooterBlock?.mjml || "")
+    if (footerSnippet) {
+        orderedSnippets.push(footerSnippet)
+    }
 
     if (orderedSnippets.length === 0) {
         return ""
@@ -159,10 +197,12 @@ export default function SelectVariations() {
     const queryClient = useQueryClient()
     const campaignRunId = useCreativeFlowStore((state) => state.campaignRunId)
     const setSelectedOrderedMjml = useCreativeFlowStore((state) => state.setSelectedOrderedMjml)
+    const setSelectedPathwayFooterBlock = useCreativeFlowStore((state) => state.setSelectedPathwayFooterBlock)
     const [activeSection, setActiveSection] = useState("hero")
     const [isLoadingVariations, setIsLoadingVariations] = useState(false)
     const [variationsError, setVariationsError] = useState("")
     const [apiVariationsBySection, setApiVariationsBySection] = useState({})
+    const [pathwayFooterBlock, setPathwayFooterBlock] = useState(null)
     const [selectedVariationBySection, setSelectedVariationBySection] = useState(
         sectionConfig.reduce((acc, section) => ({ ...acc, [section.key]: null }), {})
     )
@@ -215,8 +255,11 @@ export default function SelectVariations() {
             const cacheKey = getVariationsCacheKey(campaignRunId)
             const cachedData = queryClient.getQueryData(cacheKey)
             if (cachedData) {
+                const cachedSections = cachedData?.sections || cachedData
+                const cachedFooterBlock = cachedData?.pathwayFooterBlock || null
                 if (isMounted) {
-                    setApiVariationsBySection(cachedData)
+                    setApiVariationsBySection(cachedSections)
+                    setPathwayFooterBlock(cachedFooterBlock)
                     setVariationsError("")
                 }
                 return
@@ -230,10 +273,16 @@ export default function SelectVariations() {
                 await generateVariation(campaignRunId)
                 const allVariationsResponse = await getAllVariations(campaignRunId)
                 const variantsPayload = allVariationsResponse?.variants || allVariationsResponse || {}
+                const staticBlocksPayload = allVariationsResponse?.static_blocks || {}
                 const mappedSections = mapApiVariationsToSections(variantsPayload)
-                queryClient.setQueryData(cacheKey, mappedSections)
+                const mappedPathwayFooterBlock = extractPathwayFooterBlock(staticBlocksPayload)
+                queryClient.setQueryData(cacheKey, {
+                    sections: mappedSections,
+                    pathwayFooterBlock: mappedPathwayFooterBlock,
+                })
                 if (isMounted) {
                     setApiVariationsBySection(mappedSections)
+                    setPathwayFooterBlock(mappedPathwayFooterBlock)
                 }
             } catch (error) {
                 console.error("Failed to load variations", error)
@@ -275,11 +324,18 @@ export default function SelectVariations() {
     }
 
     const handleContinueToEditor = () => {
-        const orderedMjml = buildOrderedMjmlDocument(sectionConfig, selectedVariationBySection, sectionVariations)
+        const orderedMjml = buildOrderedMjmlDocument(
+            sectionConfig,
+            selectedVariationBySection,
+            sectionVariations,
+            pathwayFooterBlock
+        )
         setSelectedOrderedMjml(orderedMjml)
+        setSelectedPathwayFooterBlock(pathwayFooterBlock)
         navigate("/creatives/preview-export", {
             state: {
                 orderedMjml,
+                pathwayFooterBlock,
             },
         })
     }
@@ -293,28 +349,48 @@ export default function SelectVariations() {
             )
         }
 
+        const selectedVariantMjml =
+            selectedVariation?.raw?.mjml ||
+            selectedVariation?.raw?.myml ||
+            ""
+
+        if (!selectedVariantMjml) {
+            return (
+                <div className="border rounded p-3 bg-body-tertiary text-secondary">
+                    No MJML available for the selected variation.
+                </div>
+            )
+        }
+
+        const compiledPreviewHtml = (() => {
+            try {
+                const mjmlDocument = ensureMjmlDocument(selectedVariantMjml)
+                if (!mjmlDocument) {
+                    return ""
+                }
+                const compileResult = mjml2html(mjmlDocument, { validationLevel: "soft" })
+                return compileResult?.html || ""
+            } catch (error) {
+                console.error("Failed to compile selected variation MJML", error)
+                return ""
+            }
+        })()
+
+        if (!compiledPreviewHtml) {
+            return (
+                <div className="border rounded p-3 bg-body-tertiary text-secondary">
+                    Unable to render selected variation MJML.
+                </div>
+            )
+        }
+
         return (
             <div className="border rounded p-3 bg-body-tertiary">
-                <h6 className="fw-semibold mb-2">{selectedVariation.title}</h6>
-                {selectedVariation.sub ? (
-                    <p className="mb-2 text-secondary">{selectedVariation.sub}</p>
-                ) : null}
-                {selectedVariation.description ? (
-                    <p className="mb-2">{selectedVariation.description}</p>
-                ) : null}
-                {activeSection === "cta" || selectedVariation.ctaText ? (
-                    <div className="small">
-                        {selectedVariation.ctaUrl ? (
-                            <a className="btn btn-sm button-primary" href={selectedVariation.ctaUrl} target="_blank" rel="noreferrer">
-                                {selectedVariation.ctaText || "Call To Action"}
-                            </a>
-                        ) : (
-                            <button type="button" className="btn btn-sm button-primary">
-                                {selectedVariation.ctaText || "Call To Action"}
-                            </button>
-                        )}
-                    </div>
-                ) : null}
+                <iframe
+                    title="Selected variation preview"
+                    srcDoc={compiledPreviewHtml}
+                    style={{ width: "100%", minHeight: "520px", border: "0", backgroundColor: "#fff" }}
+                />
             </div>
         )
     }
@@ -347,6 +423,14 @@ export default function SelectVariations() {
                                 )
                             })}
                         </div>
+                        {pathwayFooterBlock?.mjml ? (
+                            <div className="mt-2 border rounded p-2 bg-body-tertiary small">
+                                <div className="fw-semibold">Static Footer Included</div>
+                                <div className="text-secondary">
+                                    {pathwayFooterBlock.description || "pathway_footer from static_blocks will be appended to final MJML."}
+                                </div>
+                            </div>
+                        ) : null}
                     </div>
                 </div>
                 <div className="row g-2">

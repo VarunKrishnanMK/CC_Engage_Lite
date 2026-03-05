@@ -268,7 +268,7 @@ const GrapesMjmlEditorPanel = forwardRef(function GrapesMjmlEditorPanel({ initia
   }), [])
 
   return (
-    <div className={`gjs-editor-wrap ${theme === "dark" ? "gjs-theme-dark" : "gjs-theme-light"}`} style={{ height: "90vh" }}>
+    <div className={`gjs-editor-wrap ${theme === "dark" ? "gjs-theme-dark" : "gjs-theme-light"}`} style={{ height: "94vh" }}>
       <div ref={containerRef} className="h-100" />
     </div>
   )
