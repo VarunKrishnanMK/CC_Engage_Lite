@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import AIChatSection from "../../components/AIChatSection";
 import toast from "react-hot-toast";
-import { confirmBrief, getBrief, getBriefStatus, updateBrief, uploadBriefFile } from "../api/apiService";
+import { confirmBrief, updateBrief, uploadBriefFile } from "../api/apiService";
 import { useThemeStore } from "../../stores/themeStore";
 import { useCreativeFlowStore } from "../../stores/creativeFlowStore";
 
 const getBriefUploadCacheKey = (file, assetType) => ["brief-upload", file.name, file.size, file.lastModified, assetType]
-const getBriefStatusCacheKey = (campaignRunId) => ["brief-status", campaignRunId]
-const getBriefByIdCacheKey = (campaignRunId) => ["brief", campaignRunId]
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const heroImageModeOptions = ["library", "generate", "upload"]
 
 const fieldConfig = [
     {
@@ -184,6 +183,13 @@ const fieldConfig = [
         rows: 3,
         size: "long",
     },
+    {
+        key: "hero_image_mode",
+        label: "Hero Image Mode",
+        control: "select",
+        options: heroImageModeOptions,
+        size: "short",
+    },
 ]
 
 const emptyForm = {
@@ -211,6 +217,7 @@ const emptyForm = {
     deliverables: "",
     previous_campaigns: "",
     compliance_requirements: "",
+    hero_image_mode: "library",
 }
 
 export default function NewCreative() {
@@ -286,7 +293,7 @@ export default function NewCreative() {
     }
 
     const mapBriefResponseToFormValues = (responseData) => {
-        const questions = responseData?.brief_ui?.panel_brief?.questions
+        const questions = responseData?.panel_brief?.questions
         if (!Array.isArray(questions) || questions.length === 0) {
             return null
         }
@@ -317,23 +324,9 @@ export default function NewCreative() {
                 changedFields[key] = currentValue
             }
         })
+        changedFields.hero_image_mode = formValues.hero_image_mode
         return changedFields
     }
-
-    const fetchBriefStatusById = (campaignRunId, staleTime = 0) =>
-        queryClient.fetchQuery({
-            queryKey: getBriefStatusCacheKey(campaignRunId),
-            queryFn: () => getBriefStatus(campaignRunId),
-            staleTime,
-            gcTime: 10 * 60 * 1000,
-        })
-
-    const fetchBriefById = (campaignRunId) =>
-        queryClient.fetchQuery({
-            queryKey: getBriefByIdCacheKey(campaignRunId),
-            queryFn: () => getBrief(campaignRunId),
-            staleTime: 0
-        })
 
     const handleBriefFileUpload = async (event) => {
         const file = event.target.files?.[0]
@@ -364,39 +357,13 @@ export default function NewCreative() {
                 file,
                 channel: selectedAssetType,
             })
-            if (uploadResponse?.message || uploadResponse?.status) {
-                const message = uploadResponse?.message || "Brief upload initiated."
-                const statusText = uploadResponse?.status ? `Status: ${uploadResponse.status}` : null
-                toast.success(statusText ? `${message} ${statusText}` : message)
-            }
-
             const campaignRunId = uploadResponse?.campaign_run_id
             if (!campaignRunId) {
                 throw new Error("Upload response missing campaign_run_id")
             }
             setCampaignRunId(campaignRunId)
             setCampaignRunIdInStore(campaignRunId)
-
-            let briefStatusResponse = await fetchBriefStatusById(campaignRunId)
-            if (briefStatusResponse?.status) {
-                toast.success(`Brief parsing status: ${briefStatusResponse.status}`)
-            }
-            if (briefStatusResponse?.status !== "parsed") {
-                for (let attempt = 0; attempt < 4; attempt += 1) {
-                    await wait(1500)
-                    briefStatusResponse = await fetchBriefStatusById(campaignRunId, 0)
-                    if (briefStatusResponse?.status === "parsed") {
-                        break
-                    }
-                }
-            }
-
-            if (briefStatusResponse?.status !== "parsed") {
-                toast.error("Brief is not parsed yet. Please try again in a moment.")
-                return
-            }
-
-            const briefResponse = await fetchBriefById(campaignRunId)
+            const briefResponse = uploadResponse?.brief_ui;
             const mappedValues = mapBriefResponseToFormValues(briefResponse)
             if (!mappedValues) {
                 toast.error("Brief uploaded, but no mappable fields were found in response.")
@@ -486,6 +453,14 @@ export default function NewCreative() {
                                                 {field.hint ? <p className="small text-secondary mb-1">{field.hint}</p> : null}
                                                 {field.control === "input" ? (
                                                     <input className="form-control" type={field.inputType || "text"} placeholder="Enter your answer..." value={formValues[field.key]} disabled={isFormLocked} onChange={(event) => handleFieldChange(field.key, event.target.value)} />
+                                                ) : field.control === "select" ? (
+                                                    <select className="form-select" value={formValues[field.key]} disabled={isFormLocked} onChange={(event) => handleFieldChange(field.key, event.target.value)}>
+                                                        {field.options.map((option) => (
+                                                            <option key={option} value={option}>
+                                                                {option}
+                                                            </option>
+                                                        ))}
+                                                    </select>
                                                 ) : (
                                                     <textarea className="form-control" rows={field.rows} placeholder="Enter your answer..." value={formValues[field.key]} disabled={isFormLocked} onChange={(event) => handleFieldChange(field.key, event.target.value)} />
                                                 )}

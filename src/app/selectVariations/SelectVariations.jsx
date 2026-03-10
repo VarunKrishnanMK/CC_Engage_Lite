@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 import mjml2html from "mjml-browser"
 import AIChatSection from "../../components/AIChatSection"
-import { generateTemplate, generateVariation, getAllVariations } from "../api/apiService"
+import { beginApiLoader, endApiLoader, generateTemplate, generateVariation, getAllVariations } from "../api/apiService"
 import { useCreativeFlowStore } from "../../stores/creativeFlowStore"
 
 const sectionConfig = [
@@ -199,7 +199,6 @@ export default function SelectVariations() {
     const setSelectedOrderedMjml = useCreativeFlowStore((state) => state.setSelectedOrderedMjml)
     const setSelectedPathwayFooterBlock = useCreativeFlowStore((state) => state.setSelectedPathwayFooterBlock)
     const [activeSection, setActiveSection] = useState("hero")
-    const [isLoadingVariations, setIsLoadingVariations] = useState(false)
     const [variationsError, setVariationsError] = useState("")
     const [apiVariationsBySection, setApiVariationsBySection] = useState({})
     const [pathwayFooterBlock, setPathwayFooterBlock] = useState(null)
@@ -265,8 +264,8 @@ export default function SelectVariations() {
                 return
             }
 
-            setIsLoadingVariations(true)
             setVariationsError("")
+            beginApiLoader()
 
             try {
                 await generateTemplate(campaignRunId)
@@ -290,9 +289,7 @@ export default function SelectVariations() {
                     setVariationsError("Unable to load variations. Please try again.")
                 }
             } finally {
-                if (isMounted) {
-                    setIsLoadingVariations(false)
-                }
+                endApiLoader()
             }
         }
 
@@ -403,7 +400,6 @@ export default function SelectVariations() {
             <div className="container-fluid my-2">
                 <div className="card border-0 p-2 mb-2">
                     <CreativeWorkflowSteps currentStep="variations" />
-                    {isLoadingVariations ? <small className="text-secondary">Generating and loading variations...</small> : null}
                     {variationsError ? <small className="text-danger">{variationsError}</small> : null}
                     <div className="py-2">
                         <div className="d-flex flex-wrap align-items-center gap-1">

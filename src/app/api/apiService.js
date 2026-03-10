@@ -2,11 +2,11 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 const apiService = axios.create({
-    baseURL: "http://localhost:8001/api",
+    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8001",
     headers: {
         "Content-Type": "application/json",
     },
-    timeout: 20000,
+    timeout: 5000000,
 })
 
 let activeRequestCount = 0
@@ -45,9 +45,20 @@ const stopLoading = () => {
     }
 }
 
+export const beginApiLoader = () => {
+    startLoading()
+}
+
+export const endApiLoader = () => {
+    stopLoading()
+}
+
 export const configureApiService = ({ onStartLoading, onStopLoading } = {}) => {
     showLoader = typeof onStartLoading === "function" ? onStartLoading : () => { }
     hideLoader = typeof onStopLoading === "function" ? onStopLoading : () => { }
+    if (activeRequestCount > 0) {
+        showLoader()
+    }
 
     if (interceptorsInitialized) {
         return
@@ -116,32 +127,15 @@ export const uploadBriefFile = async ({ file, channel = "email", category = "nor
     return response.data
 }
 
-export const getBriefStatus = async (id) => {
-    const response = await apiService.get(`/activity1/briefs/${id}/status`, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    })
-    return response.data
-}
-
-export const getBrief = async (id) => {
-    const response = await apiService.get(`/activity1/briefs/${id}`, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    })
-    return response.data
-}
-
 export const updateBrief = async (id, payload = {}) => {
-    const response = await apiService.put(`/activity1/briefs/${id}`, payload)
+    const response = await apiService.patch(`/activity1/briefs/${id}`, payload)
     return response.data
 }
 
 export const confirmBrief = async (id, payload = {}) => {
+    payload.confirmed_by = "user";
     const response = await apiService.post(`/activity1/briefs/${id}/confirm`, payload)
-    return response.data
+    return response.data;
 }
 
 export const generateTemplate = async (id) => {
@@ -150,7 +144,11 @@ export const generateTemplate = async (id) => {
     payload.append("category", "normal")
     payload.append("mock", false)
     payload.append("type", "email")
-    const response = await apiService.post(`/activity2/outlines/generate`, payload)
+    const response = await apiService.post(`/activity2/outlines/generate`, payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        }
+    });
     return response.data
 }
 
